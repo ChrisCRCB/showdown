@@ -8,6 +8,7 @@ import 'package:recase/recase.dart';
 import '../constants.dart';
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
+import '../screens/select_foul_screen.dart';
 import '../table_end.dart';
 import 'custom_text.dart';
 
@@ -61,12 +62,16 @@ class PlayerPanel extends StatelessWidget {
         ),
       ),
       ElevatedButton(
-        onPressed: () => addEvent(
-          GameEvent(
-            id: uuid.v4(),
-            time: DateTime.now(),
-            tableEnd: tableEnd,
-            type: GameEventType.bodyTouch,
+        onPressed: () => context.pushWidgetBuilder(
+          (final context) => SelectFoulScreen(
+            onDone: (final value) => addEvent(
+              GameEvent(
+                id: uuid.v4(),
+                time: DateTime.now(),
+                tableEnd: tableEnd,
+                type: value,
+              ),
+            ),
           ),
         ),
         child: const Icon(

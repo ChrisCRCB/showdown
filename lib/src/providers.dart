@@ -35,3 +35,10 @@ final leftPlayerNameProvider = StateProvider(
 final rightPlayerNameProvider = StateProvider(
   (final ref) => 'Right Player',
 );
+
+/// Provide the font size.
+@riverpod
+Future<double> fontSize(final FontSizeRef ref) async {
+  final appPreferences = await ref.watch(appPreferencesProvider.future);
+  return appPreferences.fontSize.toDouble();
+}

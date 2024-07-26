@@ -102,14 +102,14 @@ class GameScreenState extends ConsumerState<GameScreen> {
       ),
       actions: [
         IconButton(
-          onPressed: () => alterFontSize(-1),
+          onPressed: () => alterFontSize(-2),
           icon: const Icon(
             Icons.text_decrease,
             semanticLabel: 'Decrease font size',
           ),
         ),
         IconButton(
-          onPressed: () => alterFontSize(1),
+          onPressed: () => alterFontSize(2),
           icon: const Icon(
             Icons.text_increase,
             semanticLabel: 'Increase font size',
@@ -134,7 +134,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
           ),
           Expanded(
             flex: widget.middleFlex,
-            child: Column(
+            child: ListView(
+              shrinkWrap: true,
               children: [
                 CustomText(
                   "$servingPlayerName's $serveNumberString serve ($scores)",
@@ -205,7 +206,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
   /// Alter the font size.
   Future<void> alterFontSize(final int amount) async {
     final appPreferences = await ref.read(appPreferencesProvider.future);
-    appPreferences.fontSize = min(8, appPreferences.fontSize + amount);
+    appPreferences.fontSize = max(8, appPreferences.fontSize + amount);
     await appPreferences.safe(ref);
   }
 

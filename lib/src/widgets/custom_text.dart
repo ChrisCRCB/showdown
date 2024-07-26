@@ -18,11 +18,11 @@ class CustomText extends ConsumerWidget {
   /// Build the widget.
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
-    final value = ref.watch(appPreferencesProvider);
+    final value = ref.watch(fontSizeProvider);
     return value.when(
-      data: (final appPreferences) => Text(
+      data: (final fontSize) => Text(
         data,
-        style: TextStyle(fontSize: appPreferences.fontSize.toDouble()),
+        style: TextStyle(fontSize: fontSize),
       ),
       error: (final error, final stackTrace) => Text('$error, $stackTrace'),
       loading: LoadingWidget.new,
