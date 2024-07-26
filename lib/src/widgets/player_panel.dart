@@ -1,22 +1,26 @@
 import 'package:backstreets_widgets/extensions.dart';
+import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:recase/recase.dart';
 
+import '../constants.dart';
 import '../json/game_event.dart';
-import '../providers.dart';
+import '../json/game_event_type.dart';
 import '../table_end.dart';
+import 'custom_text.dart';
 
 /// The panel to show stats for [name].
-class PlayerPanel extends ConsumerWidget {
+class PlayerPanel extends StatelessWidget {
   /// Create an instance.
   const PlayerPanel({
     required this.name,
     required this.tableEnd,
-    required this.onChanged,
     required this.events,
+    required this.onChanged,
+    required this.addEvent,
+    required this.deleteEvent,
     super.key,
   });
 
@@ -32,50 +36,104 @@ class PlayerPanel extends ConsumerWidget {
   /// The function to call when the player changes.
   final void Function(String name) onChanged;
 
+  /// The function to call to add a new event.
+  final void Function(GameEvent event) addEvent;
+
+  /// The function to call to delete an event.
+  final void Function(GameEvent event) deleteEvent;
+
   /// Build the widget.
   @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final value = ref.watch(appPreferencesProvider);
-    return value.when(
-      data: (final appPreferences) {
-        final fontSize = appPreferences.fontSize.toDouble();
-        return ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(
-              title: Text(
-                name,
-                style: TextStyle(
-                  fontSize: fontSize,
+  Widget build(final BuildContext context) {
+    final buttons = [
+      ElevatedButton(
+        onPressed: () => addEvent(
+          GameEvent(
+            id: uuid.v4(),
+            time: DateTime.now(),
+            tableEnd: tableEnd,
+            type: GameEventType.goal,
+          ),
+        ),
+        child: const Icon(
+          Icons.sports_soccer,
+          semanticLabel: 'Goal',
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () => addEvent(
+          GameEvent(
+            id: uuid.v4(),
+            time: DateTime.now(),
+            tableEnd: tableEnd,
+            type: GameEventType.bodyTouch,
+          ),
+        ),
+        child: const Icon(
+          Icons.warning,
+          semanticLabel: 'Foul',
+        ),
+      ),
+    ];
+    return Column(
+      children: [
+        Expanded(
+          flex: 5,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              ListTile(
+                title: CustomText(name),
+                onTap: () => context.pushWidgetBuilder(
+                  (final builderContext) => GetText(
+                    onDone: (final value) {
+                      Navigator.pop(builderContext);
+                      onChanged(name);
+                    },
+                    labelText: 'Player name',
+                    text: name,
+                    title: 'Rename Player',
+                    validator: FormBuilderValidators.required(),
+                  ),
                 ),
               ),
-              onTap: () => context.pushWidgetBuilder(
-                (final builderContext) => GetText(
-                  onDone: (final value) {
-                    Navigator.pop(builderContext);
-                    onChanged(name);
-                  },
-                  labelText: 'Player name',
-                  text: name,
-                  title: 'Rename Player',
-                  validator: FormBuilderValidators.required(),
+              ...events.reversed.map(
+                (final event) => CommonShortcuts(
+                  deleteCallback: () => doDeleteEvent(context, event),
+                  child: ListTile(
+                    title: CustomText(event.type.name.titleCase),
+                    onTap: () {},
+                    onLongPress: () => doDeleteEvent(context, event),
+                  ),
                 ),
               ),
-            ),
-            ...events.reversed.map(
-              (final event) => ListTile(
-                title: Text(
-                  event.type.name.titleCase,
-                  style: TextStyle(fontSize: fontSize),
-                ),
-                onTap: () {},
-              ),
-            ),
-          ],
-        );
-      },
-      error: ErrorListView.withPositional,
-      loading: LoadingWidget.new,
+            ],
+          ),
+        ),
+        Expanded(
+          child: Row(
+            children: switch (tableEnd) {
+              TableEnd.left => buttons,
+              TableEnd.right => buttons.reversed.toList(),
+            },
+          ),
+        ),
+      ],
     );
   }
+
+  /// Perform event deletion.
+  Future<void> doDeleteEvent(
+    final BuildContext context,
+    final GameEvent event,
+  ) =>
+      confirm(
+        context: context,
+        message: 'Really delete this event?',
+        title: 'Delete Event',
+        yesCallback: () async {
+          Navigator.pop(context);
+          deleteEvent(event);
+        },
+      );
 }
