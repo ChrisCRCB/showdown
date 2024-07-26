@@ -85,7 +85,6 @@ class PlayerPanel extends StatelessWidget {
         TableEnd.left => CrossAxisAlignment.start,
         TableEnd.right => CrossAxisAlignment.end,
       },
-      key: ValueKey('${tableEnd.name} $name'),
       children: [
         Expanded(
           flex: 5,

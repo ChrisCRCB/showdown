@@ -66,6 +66,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
   Widget build(final BuildContext context) {
     final leftPlayerName = ref.watch(leftPlayerNameProvider);
     final rightPlayerName = ref.watch(rightPlayerNameProvider);
+    print('Left player: $leftPlayerName');
+    print('Right player: $rightPlayerName');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -123,6 +125,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
             flex: widget.playerPanelFlex,
             child: PlayerPanel(
               name: leftPlayerName,
+              key: ValueKey('${TableEnd.left} $leftPlayerName'),
               tableEnd: TableEnd.left,
               onChanged: (final name) => setState(() {
                 ref.read(leftPlayerNameProvider.notifier).state = name;
@@ -136,6 +139,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
             flex: widget.middleFlex,
             child: ListView(
               shrinkWrap: true,
+              key: ValueKey('$leftPlayerName $rightPlayerName'),
               children: [
                 CustomText(
                   "$servingPlayerName's $serveNumberString serve ($scores)",
@@ -156,6 +160,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
             flex: widget.playerPanelFlex,
             child: PlayerPanel(
               name: rightPlayerName,
+              key: ValueKey('${TableEnd.right} $rightPlayerName'),
               tableEnd: TableEnd.right,
               onChanged: (final name) => setState(() {
                 ref.read(rightPlayerNameProvider.notifier).state = name;
