@@ -36,12 +36,6 @@ class GameScreen extends ConsumerStatefulWidget {
 
 /// State for [GameScreen].
 class GameScreenState extends ConsumerState<GameScreen> {
-  /// The name of the player at the left hand end of the table.
-  late String leftPlayerName;
-
-  /// The name of the player at the right hand end of the table.
-  late String rightPlayerName;
-
   /// Which player is serving.
   late TableEnd servingPlayer;
 
@@ -55,8 +49,6 @@ class GameScreenState extends ConsumerState<GameScreen> {
   @override
   void initState() {
     super.initState();
-    leftPlayerName = 'Left Player';
-    rightPlayerName = 'Right Player';
     servingPlayer = TableEnd.left;
     serveNumber = ServeNumber.first;
     events = [];
@@ -72,6 +64,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
   /// Build a widget.
   @override
   Widget build(final BuildContext context) {
+    final leftPlayerName = ref.watch(leftPlayerNameProvider);
+    final rightPlayerName = ref.watch(rightPlayerNameProvider);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -131,7 +125,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
               name: leftPlayerName,
               tableEnd: TableEnd.left,
               onChanged: (final name) => setState(() {
-                leftPlayerName = name;
+                ref.read(leftPlayerNameProvider.notifier).state = name;
               }),
               events: events,
               addEvent: addEvent,
@@ -163,7 +157,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
               name: rightPlayerName,
               tableEnd: TableEnd.right,
               onChanged: (final name) => setState(() {
-                rightPlayerName = name;
+                ref.read(rightPlayerNameProvider.notifier).state = name;
               }),
               events: getEvents(TableEnd.right),
               addEvent: addEvent,

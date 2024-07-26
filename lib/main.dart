@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/screens/game_screen.dart';
@@ -14,14 +15,17 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(final BuildContext context) => ProviderScope(
-        child: MaterialApp(
-          title: 'Showdown',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          home: const GameScreen(),
+  Widget build(final BuildContext context) {
+    RendererBinding.instance.ensureSemantics();
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Showdown',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
         ),
-      );
+        home: const GameScreen(),
+      ),
+    );
+  }
 }

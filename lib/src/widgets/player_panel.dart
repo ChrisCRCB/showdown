@@ -76,6 +76,11 @@ class PlayerPanel extends StatelessWidget {
       ),
     ];
     return Column(
+      crossAxisAlignment: switch (tableEnd) {
+        TableEnd.left => CrossAxisAlignment.start,
+        TableEnd.right => CrossAxisAlignment.end,
+      },
+      key: ValueKey('${tableEnd.name} $name'),
       children: [
         Expanded(
           flex: 5,
@@ -112,6 +117,10 @@ class PlayerPanel extends StatelessWidget {
         ),
         Expanded(
           child: Row(
+            mainAxisAlignment: switch (tableEnd) {
+              TableEnd.left => MainAxisAlignment.start,
+              TableEnd.right => MainAxisAlignment.end,
+            },
             children: switch (tableEnd) {
               TableEnd.left => buttons,
               TableEnd.right => buttons.reversed.toList(),

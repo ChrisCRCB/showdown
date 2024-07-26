@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,3 +25,13 @@ Future<AppPreferences> appPreferences(final AppPreferencesRef ref) async {
   final json = jsonDecode(source);
   return AppPreferences.fromJson(json);
 }
+
+/// Provide the left player's name.
+final leftPlayerNameProvider = StateProvider(
+  (final ref) => 'Left Player',
+);
+
+/// Provide the right player's name.
+final rightPlayerNameProvider = StateProvider(
+  (final ref) => 'Right Player',
+);
