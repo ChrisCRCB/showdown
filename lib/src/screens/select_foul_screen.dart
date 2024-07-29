@@ -35,16 +35,20 @@ class SelectFoulScreen extends ConsumerWidget {
           itemBuilder: (final context, final index) {
             final foul = fouls[index];
             final foulName = foul.name.titleCase;
-            return FocusableActionDetector(
-              actions: {
-                ActivateIntent: CallbackAction(
-                  onInvoke: (final intent) => activateFoul(context, foul),
-                ),
-              },
-              child: GestureDetector(
-                onTap: () => activateFoul(context, foul),
-                child: Card(
-                  child: CustomText(foulName),
+            return Semantics(
+              label: foulName,
+              child: FocusableActionDetector(
+                autofocus: index == 0,
+                actions: {
+                  ActivateIntent: CallbackAction(
+                    onInvoke: (final intent) => activateFoul(context, foul),
+                  ),
+                },
+                child: GestureDetector(
+                  onTap: () => activateFoul(context, foul),
+                  child: Card(
+                    child: CustomText(foulName),
+                  ),
                 ),
               ),
             );
