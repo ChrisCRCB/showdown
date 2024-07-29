@@ -1,4 +1,5 @@
 import 'package:backstreets_widgets/screens.dart';
+import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recase/recase.dart';
@@ -27,29 +28,31 @@ class SelectFoulScreen extends ConsumerWidget {
         (final a, final b) =>
             a.name.toLowerCase().compareTo(b.name.toLowerCase()),
       );
-    return SimpleScaffold(
-      title: 'Select Foul',
-      body: ListView.builder(
-        itemBuilder: (final context, final index) {
-          final foul = fouls[index];
-          final foulName = foul.name.titleCase;
-          return FocusableActionDetector(
-            actions: {
-              ActivateIntent: CallbackAction(
-                onInvoke: (final intent) => activateFoul(context, foul),
+    return Cancel(
+      child: SimpleScaffold(
+        title: 'Select Foul',
+        body: ListView.builder(
+          itemBuilder: (final context, final index) {
+            final foul = fouls[index];
+            final foulName = foul.name.titleCase;
+            return FocusableActionDetector(
+              actions: {
+                ActivateIntent: CallbackAction(
+                  onInvoke: (final intent) => activateFoul(context, foul),
+                ),
+              },
+              child: GestureDetector(
+                onTap: () => activateFoul(context, foul),
+                child: Card(
+                  child: CustomText(foulName),
+                ),
               ),
-            },
-            child: GestureDetector(
-              onTap: () => activateFoul(context, foul),
-              child: Card(
-                child: CustomText(foulName),
-              ),
-            ),
-          );
-        },
-        itemCount: fouls.length,
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
+            );
+          },
+          itemCount: fouls.length,
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+        ),
       ),
     );
   }
