@@ -46,6 +46,13 @@ class PlayerPanel extends StatelessWidget {
   /// Build the widget.
   @override
   Widget build(final BuildContext context) {
+    final fouls = GameEventType.values
+        .where((final type) => type != GameEventType.goal)
+        .toList()
+      ..sort(
+        (final a, final b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
     final buttons = [
       ElevatedButton(
         onPressed: () => addEvent(
@@ -58,8 +65,7 @@ class PlayerPanel extends StatelessWidget {
       ),
       Semantics(
         customSemanticsActions: {
-          for (final foul in GameEventType.values
-              .where((final type) => type != GameEventType.goal))
+          for (final foul in fouls)
             CustomSemanticsAction(label: foul.name.titleCase): () =>
                 addEvent(foul),
         },
