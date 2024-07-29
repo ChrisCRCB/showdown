@@ -2,6 +2,7 @@ import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:recase/recase.dart';
 
@@ -55,15 +56,23 @@ class PlayerPanel extends StatelessWidget {
           semanticLabel: 'Goal',
         ),
       ),
-      ElevatedButton(
-        onPressed: () => context.pushWidgetBuilder(
-          (final context) => SelectFoulScreen(
-            onDone: addEvent,
+      Semantics(
+        customSemanticsActions: {
+          for (final foul in GameEventType.values
+              .where((final type) => type != GameEventType.goal))
+            CustomSemanticsAction(label: foul.name.titleCase): () =>
+                addEvent(foul),
+        },
+        child: ElevatedButton(
+          onPressed: () => context.pushWidgetBuilder(
+            (final context) => SelectFoulScreen(
+              onDone: addEvent,
+            ),
           ),
-        ),
-        child: const Icon(
-          Icons.warning,
-          semanticLabel: 'Foul',
+          child: const Icon(
+            Icons.warning,
+            semanticLabel: 'Foul',
+          ),
         ),
       ),
     ];
