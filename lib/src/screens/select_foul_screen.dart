@@ -22,7 +22,11 @@ class SelectFoulScreen extends ConsumerWidget {
   Widget build(final BuildContext context, final WidgetRef ref) {
     final fouls = GameEventType.values
         .where((final type) => type != GameEventType.goal)
-        .toList();
+        .toList()
+      ..sort(
+        (final a, final b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
     return SimpleScaffold(
       title: 'Select Foul',
       body: ListView.builder(
