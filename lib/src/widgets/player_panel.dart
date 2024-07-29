@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:recase/recase.dart';
 
-import '../constants.dart';
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
 import '../screens/select_foul_screen.dart';
@@ -38,7 +37,7 @@ class PlayerPanel extends StatelessWidget {
   final void Function(String name) onChanged;
 
   /// The function to call to add a new event.
-  final void Function(GameEvent event) addEvent;
+  final void Function(GameEventType eventType) addEvent;
 
   /// The function to call to delete an event.
   final void Function(GameEvent event) deleteEvent;
@@ -49,12 +48,7 @@ class PlayerPanel extends StatelessWidget {
     final buttons = [
       ElevatedButton(
         onPressed: () => addEvent(
-          GameEvent(
-            id: uuid.v4(),
-            time: DateTime.now(),
-            tableEnd: tableEnd,
-            type: GameEventType.goal,
-          ),
+          GameEventType.goal,
         ),
         child: const Icon(
           Icons.sports_soccer,
@@ -64,14 +58,7 @@ class PlayerPanel extends StatelessWidget {
       ElevatedButton(
         onPressed: () => context.pushWidgetBuilder(
           (final context) => SelectFoulScreen(
-            onDone: (final value) => addEvent(
-              GameEvent(
-                id: uuid.v4(),
-                time: DateTime.now(),
-                tableEnd: tableEnd,
-                type: value,
-              ),
-            ),
+            onDone: addEvent,
           ),
         ),
         child: const Icon(

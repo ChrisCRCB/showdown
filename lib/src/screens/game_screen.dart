@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants.dart';
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
 import '../providers.dart';
@@ -135,7 +136,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                 leftPlayerName = name;
               }),
               events: events,
-              addEvent: addEvent,
+              addEvent: (final eventType) => addEvent(TableEnd.left, eventType),
               deleteEvent: deleteEvent,
             ),
           ),
@@ -170,7 +171,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
                 rightPlayerName = name;
               }),
               events: getEvents(TableEnd.right),
-              addEvent: addEvent,
+              addEvent: (final eventType) =>
+                  addEvent(TableEnd.right, eventType),
               deleteEvent: deleteEvent,
             ),
           ),
@@ -190,9 +192,9 @@ class GameScreenState extends ConsumerState<GameScreen> {
     });
   }
 
-  /// Add a new [event].
-  void addEvent(final GameEvent event) {
-    if (event.type == GameEventType.goal) {
+  /// Add a new [GameEvent] of [type] to the given [end].
+  void addEvent(final TableEnd end, final GameEventType type) {
+    if (type == GameEventType.goal) {
       switch (serveNumber) {
         case ServeNumber.first:
           serveNumber = ServeNumber.second;
@@ -200,6 +202,12 @@ class GameScreenState extends ConsumerState<GameScreen> {
           switchEnds();
       }
     }
+    final event = GameEvent(
+      id: uuid.v4(),
+      time: DateTime.now(),
+      tableEnd: end,
+      type: type,
+    );
     events.add(event);
     setState(() {});
   }
