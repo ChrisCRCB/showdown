@@ -36,6 +36,12 @@ class GameScreen extends ConsumerStatefulWidget {
 
 /// State for [GameScreen].
 class GameScreenState extends ConsumerState<GameScreen> {
+  /// The name of the left player.
+  late String leftPlayerName;
+
+  /// The name of the right player.
+  late String rightPlayerName;
+
   /// Which player is serving.
   late TableEnd servingPlayer;
 
@@ -49,6 +55,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
   @override
   void initState() {
     super.initState();
+    leftPlayerName = 'Left Player';
+    rightPlayerName = 'Right Player';
     servingPlayer = TableEnd.left;
     serveNumber = ServeNumber.first;
     events = [];
@@ -64,10 +72,6 @@ class GameScreenState extends ConsumerState<GameScreen> {
   /// Build a widget.
   @override
   Widget build(final BuildContext context) {
-    final leftPlayerName = ref.watch(leftPlayerNameProvider);
-    final rightPlayerName = ref.watch(rightPlayerNameProvider);
-    print('Left player: $leftPlayerName');
-    print('Right player: $rightPlayerName');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -128,7 +132,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
               key: ValueKey('${TableEnd.left} $leftPlayerName'),
               tableEnd: TableEnd.left,
               onChanged: (final name) => setState(() {
-                ref.read(leftPlayerNameProvider.notifier).state = name;
+                leftPlayerName = name;
               }),
               events: events,
               addEvent: addEvent,
@@ -163,7 +167,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
               key: ValueKey('${TableEnd.right} $rightPlayerName'),
               tableEnd: TableEnd.right,
               onChanged: (final name) => setState(() {
-                ref.read(rightPlayerNameProvider.notifier).state = name;
+                rightPlayerName = name;
               }),
               events: getEvents(TableEnd.right),
               addEvent: addEvent,

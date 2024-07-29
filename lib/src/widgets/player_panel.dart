@@ -97,7 +97,7 @@ class PlayerPanel extends StatelessWidget {
                   (final builderContext) => GetText(
                     onDone: (final value) {
                       Navigator.pop(builderContext);
-                      onChanged(name);
+                      onChanged(value);
                     },
                     labelText: 'Player name',
                     text: name,
