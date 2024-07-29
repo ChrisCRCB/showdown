@@ -146,8 +146,11 @@ class GameScreenState extends ConsumerState<GameScreen> {
               shrinkWrap: true,
               key: ValueKey('$leftPlayerName $rightPlayerName'),
               children: [
-                CustomText(
-                  "$servingPlayerName's $serveNumberString serve ($scores)",
+                Semantics(
+                  liveRegion: true,
+                  child: CustomText(
+                    "$servingPlayerName's $serveNumberString serve ($scores)",
+                  ),
                 ),
                 CustomText('$leftPlayerName: $leftScore'),
                 CustomText('$rightPlayerName: $rightScore'),
