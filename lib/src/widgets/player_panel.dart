@@ -2,10 +2,10 @@ import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:recase/recase.dart';
 
-import '../constants.dart';
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
 import '../screens/select_foul_screen.dart';
@@ -38,7 +38,7 @@ class PlayerPanel extends StatelessWidget {
   final void Function(String name) onChanged;
 
   /// The function to call to add a new event.
-  final void Function(GameEvent event) addEvent;
+  final void Function(GameEventType eventType) addEvent;
 
   /// The function to call to delete an event.
   final void Function(GameEvent event) deleteEvent;
@@ -46,37 +46,39 @@ class PlayerPanel extends StatelessWidget {
   /// Build the widget.
   @override
   Widget build(final BuildContext context) {
+    final fouls = GameEventType.values
+        .where((final type) => type != GameEventType.goal)
+        .toList()
+      ..sort(
+        (final a, final b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
     final buttons = [
       ElevatedButton(
         onPressed: () => addEvent(
-          GameEvent(
-            id: uuid.v4(),
-            time: DateTime.now(),
-            tableEnd: tableEnd,
-            type: GameEventType.goal,
-          ),
+          GameEventType.goal,
         ),
         child: const Icon(
           Icons.sports_soccer,
           semanticLabel: 'Goal',
         ),
       ),
-      ElevatedButton(
-        onPressed: () => context.pushWidgetBuilder(
-          (final context) => SelectFoulScreen(
-            onDone: (final value) => addEvent(
-              GameEvent(
-                id: uuid.v4(),
-                time: DateTime.now(),
-                tableEnd: tableEnd,
-                type: value,
-              ),
+      Semantics(
+        customSemanticsActions: {
+          for (final foul in fouls)
+            CustomSemanticsAction(label: foul.name.titleCase): () =>
+                addEvent(foul),
+        },
+        child: ElevatedButton(
+          onPressed: () => context.pushWidgetBuilder(
+            (final context) => SelectFoulScreen(
+              onDone: addEvent,
             ),
           ),
-        ),
-        child: const Icon(
-          Icons.warning,
-          semanticLabel: 'Foul',
+          child: const Icon(
+            Icons.warning,
+            semanticLabel: 'Foul',
+          ),
         ),
       ),
     ];
@@ -97,7 +99,7 @@ class PlayerPanel extends StatelessWidget {
                   (final builderContext) => GetText(
                     onDone: (final value) {
                       Navigator.pop(builderContext);
-                      onChanged(name);
+                      onChanged(value);
                     },
                     labelText: 'Player name',
                     text: name,

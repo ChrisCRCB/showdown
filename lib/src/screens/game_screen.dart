@@ -1,11 +1,15 @@
 import 'dart:math';
 
+import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
+import 'package:backstreets_widgets/shortcuts.dart';
 import 'package:backstreets_widgets/util.dart';
+import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants.dart';
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
 import '../providers.dart';
@@ -13,6 +17,7 @@ import '../serve_number.dart';
 import '../table_end.dart';
 import '../widgets/custom_text.dart';
 import '../widgets/player_panel.dart';
+import 'select_foul_screen.dart';
 
 /// The main game screen.
 class GameScreen extends ConsumerStatefulWidget {
@@ -36,6 +41,12 @@ class GameScreen extends ConsumerStatefulWidget {
 
 /// State for [GameScreen].
 class GameScreenState extends ConsumerState<GameScreen> {
+  /// The name of the left player.
+  late String leftPlayerName;
+
+  /// The name of the right player.
+  late String rightPlayerName;
+
   /// Which player is serving.
   late TableEnd servingPlayer;
 
@@ -49,6 +60,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
   @override
   void initState() {
     super.initState();
+    leftPlayerName = 'Left Player';
+    rightPlayerName = 'Right Player';
     servingPlayer = TableEnd.left;
     serveNumber = ServeNumber.first;
     events = [];
@@ -64,10 +77,6 @@ class GameScreenState extends ConsumerState<GameScreen> {
   /// Build a widget.
   @override
   Widget build(final BuildContext context) {
-    final leftPlayerName = ref.watch(leftPlayerNameProvider);
-    final rightPlayerName = ref.watch(rightPlayerNameProvider);
-    print('Left player: $leftPlayerName');
-    print('Right player: $rightPlayerName');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -83,97 +92,166 @@ class GameScreenState extends ConsumerState<GameScreen> {
       TableEnd.left => '$leftScore : $rightScore',
       TableEnd.right => '$rightScore : $leftScore',
     };
-    return SimpleScaffold(
-      leading: ElevatedButton(
-        onPressed: () => confirm(
-          context: context,
-          message: 'Are you sure you want to start a new game?',
-          title: 'Clear Game',
-          yesCallback: () async {
-            Navigator.pop(context);
-            serveNumber = ServeNumber.first;
-            servingPlayer = TableEnd.left;
-            events.clear();
-            setState(() {});
-          },
-        ),
-        child: const Icon(
-          Icons.replay,
-          semanticLabel: 'Start new game',
+    final shortcuts = <GameShortcut>[
+      GameShortcut(
+        title: 'Start new game',
+        shortcut: GameShortcutsShortcut.keyN,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: newGame,
+      ),
+      GameShortcut(
+        title: 'Left player goal',
+        shortcut: GameShortcutsShortcut.keyG,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) =>
+            addEvent(TableEnd.left, GameEventType.goal),
+      ),
+      GameShortcut(
+        title: 'Left player foul',
+        shortcut: GameShortcutsShortcut.keyF,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) => innerContext.pushWidgetBuilder(
+          (final innerContext) => SelectFoulScreen(
+            onDone: (final value) => addEvent(TableEnd.left, value),
+          ),
         ),
       ),
-      actions: [
-        IconButton(
-          onPressed: () => alterFontSize(-2),
-          icon: const Icon(
-            Icons.text_decrease,
-            semanticLabel: 'Decrease font size',
+      GameShortcut(
+        title: 'Right player foul',
+        shortcut: GameShortcutsShortcut.keyJ,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) => innerContext.pushWidgetBuilder(
+          (final innerContext) => SelectFoulScreen(
+            onDone: (final value) => addEvent(TableEnd.right, value),
           ),
         ),
-        IconButton(
-          onPressed: () => alterFontSize(2),
-          icon: const Icon(
-            Icons.text_increase,
-            semanticLabel: 'Increase font size',
+      ),
+      GameShortcut(
+        title: 'Right player goal',
+        shortcut: GameShortcutsShortcut.keyH,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) =>
+            addEvent(TableEnd.right, GameEventType.goal),
+      ),
+    ];
+    shortcuts.add(
+      GameShortcut(
+        title: 'Show help',
+        shortcut: GameShortcutsShortcut.slash,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) => innerContext.pushWidgetBuilder(
+          (final context) => GameShortcutsHelpScreen(shortcuts: shortcuts),
+        ),
+      ),
+    );
+    return GameShortcuts(
+      shortcuts: shortcuts,
+      child: SimpleScaffold(
+        leading: ElevatedButton(
+          onPressed: () => newGame(context),
+          child: const Icon(
+            Icons.replay,
+            semanticLabel: 'Start new game',
           ),
         ),
-      ],
-      title: 'Showdown',
-      body: Row(
-        children: [
-          Expanded(
-            flex: widget.playerPanelFlex,
-            child: PlayerPanel(
-              name: leftPlayerName,
-              key: ValueKey('${TableEnd.left} $leftPlayerName'),
-              tableEnd: TableEnd.left,
-              onChanged: (final name) => setState(() {
-                ref.read(leftPlayerNameProvider.notifier).state = name;
-              }),
-              events: events,
-              addEvent: addEvent,
-              deleteEvent: deleteEvent,
+        actions: [
+          IconButton(
+            onPressed: () => alterFontSize(-2),
+            icon: const Icon(
+              Icons.text_decrease,
+              semanticLabel: 'Decrease font size',
             ),
           ),
-          Expanded(
-            flex: widget.middleFlex,
-            child: ListView(
-              shrinkWrap: true,
-              key: ValueKey('$leftPlayerName $rightPlayerName'),
-              children: [
-                CustomText(
-                  "$servingPlayerName's $serveNumberString serve ($scores)",
-                ),
-                CustomText('$leftPlayerName: $leftScore'),
-                CustomText('$rightPlayerName: $rightScore'),
-                ElevatedButton(
-                  onPressed: switchEnds,
-                  child: const Icon(
-                    Icons.swap_calls,
-                    semanticLabel: 'Switch ends',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: widget.playerPanelFlex,
-            child: PlayerPanel(
-              name: rightPlayerName,
-              key: ValueKey('${TableEnd.right} $rightPlayerName'),
-              tableEnd: TableEnd.right,
-              onChanged: (final name) => setState(() {
-                ref.read(rightPlayerNameProvider.notifier).state = name;
-              }),
-              events: getEvents(TableEnd.right),
-              addEvent: addEvent,
-              deleteEvent: deleteEvent,
+          IconButton(
+            onPressed: () => alterFontSize(2),
+            icon: const Icon(
+              Icons.text_increase,
+              semanticLabel: 'Increase font size',
             ),
           ),
         ],
+        title: 'Showdown',
+        body: Row(
+          children: [
+            Expanded(
+              flex: widget.playerPanelFlex,
+              child: PlayerPanel(
+                name: leftPlayerName,
+                key: ValueKey('${TableEnd.left} $leftPlayerName'),
+                tableEnd: TableEnd.left,
+                onChanged: (final name) => setState(() {
+                  leftPlayerName = name;
+                }),
+                events: events,
+                addEvent: (final eventType) =>
+                    addEvent(TableEnd.left, eventType),
+                deleteEvent: deleteEvent,
+              ),
+            ),
+            Expanded(
+              flex: widget.middleFlex,
+              child: ListView(
+                shrinkWrap: true,
+                key: ValueKey('$leftPlayerName $rightPlayerName'),
+                children: [
+                  Semantics(
+                    liveRegion: true,
+                    child: CustomText(
+                      "$servingPlayerName's $serveNumberString serve ($scores)",
+                    ),
+                  ),
+                  CustomText('$leftPlayerName: $leftScore'),
+                  CustomText('$rightPlayerName: $rightScore'),
+                  ElevatedButton(
+                    onPressed: switchEnds,
+                    child: const Icon(
+                      Icons.swap_calls,
+                      semanticLabel: 'Switch ends',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: widget.playerPanelFlex,
+              child: PlayerPanel(
+                name: rightPlayerName,
+                key: ValueKey('${TableEnd.right} $rightPlayerName'),
+                tableEnd: TableEnd.right,
+                onChanged: (final name) => setState(() {
+                  rightPlayerName = name;
+                }),
+                events: getEvents(TableEnd.right),
+                addEvent: (final eventType) =>
+                    addEvent(TableEnd.right, eventType),
+                deleteEvent: deleteEvent,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  /// Start a new game.
+  Future<void> newGame(final BuildContext context) => confirm(
+        context: context,
+        message: 'Are you sure you want to start a new game?',
+        title: 'Clear Game',
+        yesCallback: () async {
+          Navigator.pop(context);
+          serveNumber = ServeNumber.first;
+          servingPlayer = TableEnd.left;
+          events.clear();
+          setState(() {});
+        },
+      );
 
   /// Switch which end of the table is serving.
   void switchEnds() {
@@ -186,9 +264,9 @@ class GameScreenState extends ConsumerState<GameScreen> {
     });
   }
 
-  /// Add a new [event].
-  void addEvent(final GameEvent event) {
-    if (event.type == GameEventType.goal) {
+  /// Add a new [GameEvent] of [type] to the given [end].
+  void addEvent(final TableEnd end, final GameEventType type) {
+    if (type == GameEventType.goal) {
       switch (serveNumber) {
         case ServeNumber.first:
           serveNumber = ServeNumber.second;
@@ -196,6 +274,12 @@ class GameScreenState extends ConsumerState<GameScreen> {
           switchEnds();
       }
     }
+    final event = GameEvent(
+      id: uuid.v4(),
+      time: DateTime.now(),
+      tableEnd: end,
+      type: type,
+    );
     events.add(event);
     setState(() {});
   }
