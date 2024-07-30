@@ -6,8 +6,8 @@ import 'package:backstreets_widgets/shortcuts.dart';
 import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:recase/recase.dart';
 
 import '../constants.dart';
 import '../json/game_event.dart';
@@ -16,7 +16,11 @@ import '../providers.dart';
 import '../serve_number.dart';
 import '../table_end.dart';
 import '../widgets/custom_text.dart';
+import '../widgets/foul_button.dart';
+import '../widgets/goal_button.dart';
 import '../widgets/player_panel.dart';
+import '../widgets/rename_player.dart';
+import '../widgets/score_panel.dart';
 import 'select_foul_screen.dart';
 
 /// The main game screen.
@@ -67,31 +71,11 @@ class GameScreenState extends ConsumerState<GameScreen> {
     events = [];
   }
 
-  /// Dispose of the widget.
-  @override
-  void dispose() {
-    super.dispose();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-  }
-
   /// Build a widget.
   @override
   Widget build(final BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    final servingPlayerName = switch (servingPlayer) {
-      TableEnd.left => leftPlayerName,
-      TableEnd.right => rightPlayerName,
-    };
-    final serveNumberString = serveNumber.name;
     final leftScore = getScore(TableEnd.left);
     final rightScore = getScore(TableEnd.right);
-    final scores = switch (servingPlayer) {
-      TableEnd.left => '$leftScore : $rightScore',
-      TableEnd.right => '$rightScore : $leftScore',
-    };
     final shortcuts = <GameShortcut>[
       GameShortcut(
         title: 'Start new game',
@@ -184,63 +168,155 @@ class GameScreenState extends ConsumerState<GameScreen> {
           ),
         ],
         title: 'Showdown',
-        body: Row(
-          children: [
-            Expanded(
-              flex: widget.playerPanelFlex,
-              child: PlayerPanel(
-                name: leftPlayerName,
-                key: ValueKey('${TableEnd.left} $leftPlayerName'),
-                tableEnd: TableEnd.left,
-                onChanged: (final name) => setState(() {
-                  leftPlayerName = name;
-                }),
-                events: events,
-                addEvent: (final eventType) =>
-                    addEvent(TableEnd.left, eventType),
-                deleteEvent: deleteEvent,
-              ),
-            ),
-            Expanded(
-              flex: widget.middleFlex,
-              child: ListView(
-                shrinkWrap: true,
-                key: ValueKey('$leftPlayerName $rightPlayerName'),
-                children: [
-                  Semantics(
-                    liveRegion: true,
-                    child: CustomText(
-                      "$servingPlayerName's $serveNumberString serve ($scores)",
+        body: OrientationBuilder(
+          builder: (final context, final orientation) {
+            switch (orientation) {
+              case Orientation.portrait:
+                return Column(
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: ListView.builder(
+                        itemBuilder: (final context, final index) {
+                          final event = events[index];
+                          return CommonShortcuts(
+                            deleteCallback: () => deleteEvent(event),
+                            child: ListTile(
+                              title: CustomText(
+                                switch (event.tableEnd) {
+                                  TableEnd.left => leftPlayerName,
+                                  TableEnd.right => rightPlayerName,
+                                },
+                              ),
+                              subtitle: CustomText(event.type.name.titleCase),
+                              onLongPress: () => deleteEvent(event),
+                            ),
+                          );
+                        },
+                        itemCount: events.length,
+                        shrinkWrap: true,
+                      ),
                     ),
-                  ),
-                  CustomText('$leftPlayerName: $leftScore'),
-                  CustomText('$rightPlayerName: $rightScore'),
-                  ElevatedButton(
-                    onPressed: switchEnds,
-                    child: const Icon(
-                      Icons.swap_calls,
-                      semanticLabel: 'Switch ends',
+                    Expanded(
+                      flex: 2,
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextButton(
+                                onPressed: () => context.pushWidgetBuilder(
+                                  (final context) => RenamePlayer(
+                                    name: leftPlayerName,
+                                    onChanged: (final name) => setState(
+                                      () => leftPlayerName = name,
+                                    ),
+                                  ),
+                                ),
+                                child: CustomText(leftPlayerName),
+                              ),
+                              FoulButton(
+                                addEvent: (final eventType) =>
+                                    addEvent(TableEnd.left, eventType),
+                              ),
+                              GoalButton(
+                                addEvent: (final eventType) =>
+                                    addEvent(TableEnd.left, eventType),
+                              ),
+                            ],
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: ScorePanel(
+                              leftPlayerName: leftPlayerName,
+                              leftPlayerScore: leftScore,
+                              rightPlayerName: rightPlayerName,
+                              rightPlayerScore: rightScore,
+                              serveNumber: serveNumber,
+                              tableEnd: servingPlayer,
+                              switchEnds: switchEnds,
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => context.pushWidgetBuilder(
+                                  (final context) => RenamePlayer(
+                                    name: rightPlayerName,
+                                    onChanged: (final name) => setState(
+                                      () => rightPlayerName = name,
+                                    ),
+                                  ),
+                                ),
+                                child: CustomText(rightPlayerName),
+                              ),
+                              FoulButton(
+                                addEvent: (final eventType) => addEvent(
+                                  TableEnd.right,
+                                  eventType,
+                                ),
+                              ),
+                              GoalButton(
+                                addEvent: (final eventType) =>
+                                    addEvent(TableEnd.right, eventType),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: widget.playerPanelFlex,
-              child: PlayerPanel(
-                name: rightPlayerName,
-                key: ValueKey('${TableEnd.right} $rightPlayerName'),
-                tableEnd: TableEnd.right,
-                onChanged: (final name) => setState(() {
-                  rightPlayerName = name;
-                }),
-                events: getEvents(TableEnd.right),
-                addEvent: (final eventType) =>
-                    addEvent(TableEnd.right, eventType),
-                deleteEvent: deleteEvent,
-              ),
-            ),
-          ],
+                  ],
+                );
+              case Orientation.landscape:
+                return Row(
+                  children: [
+                    Expanded(
+                      flex: widget.playerPanelFlex,
+                      child: PlayerPanel(
+                        name: leftPlayerName,
+                        key: ValueKey('${TableEnd.left} $leftPlayerName'),
+                        tableEnd: TableEnd.left,
+                        onChanged: (final name) => setState(() {
+                          leftPlayerName = name;
+                        }),
+                        events: events,
+                        addEvent: (final eventType) =>
+                            addEvent(TableEnd.left, eventType),
+                        deleteEvent: deleteEvent,
+                      ),
+                    ),
+                    Expanded(
+                      flex: widget.middleFlex,
+                      child: ScorePanel(
+                        leftPlayerName: leftPlayerName,
+                        leftPlayerScore: leftScore,
+                        rightPlayerName: rightPlayerName,
+                        rightPlayerScore: rightScore,
+                        serveNumber: serveNumber,
+                        tableEnd: servingPlayer,
+                        switchEnds: switchEnds,
+                      ),
+                    ),
+                    Expanded(
+                      flex: widget.playerPanelFlex,
+                      child: PlayerPanel(
+                        name: rightPlayerName,
+                        key: ValueKey('${TableEnd.right} $rightPlayerName'),
+                        tableEnd: TableEnd.right,
+                        onChanged: (final name) => setState(() {
+                          rightPlayerName = name;
+                        }),
+                        events: getEvents(TableEnd.right),
+                        addEvent: (final eventType) =>
+                            addEvent(TableEnd.right, eventType),
+                        deleteEvent: deleteEvent,
+                      ),
+                    ),
+                  ],
+                );
+            }
+          },
         ),
       ),
     );
@@ -291,14 +367,6 @@ class GameScreenState extends ConsumerState<GameScreen> {
     setState(() {});
   }
 
-  /// Delete [event].
-  void deleteEvent(final GameEvent event) {
-    events.removeWhere(
-      (final oldEvent) => oldEvent.id == event.id,
-    );
-    setState(() {});
-  }
-
   /// Alter the font size.
   Future<void> alterFontSize(final int amount) async {
     final appPreferences = await ref.read(appPreferencesProvider.future);
@@ -324,4 +392,18 @@ class GameScreenState extends ConsumerState<GameScreen> {
     }
     return score;
   }
+
+  /// Perform event deletion.
+  Future<void> deleteEvent(final GameEvent event) => confirm(
+        context: context,
+        message: 'Really delete this event?',
+        title: 'Delete Event',
+        yesCallback: () async {
+          Navigator.pop(context);
+          events.removeWhere(
+            (final oldEvent) => oldEvent.id == event.id,
+          );
+          setState(() {});
+        },
+      );
 }

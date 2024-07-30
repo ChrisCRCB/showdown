@@ -1,16 +1,15 @@
 import 'package:backstreets_widgets/extensions.dart';
-import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:recase/recase.dart';
 
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
-import '../screens/select_foul_screen.dart';
 import '../table_end.dart';
 import 'custom_text.dart';
+import 'foul_button.dart';
+import 'goal_button.dart';
+import 'rename_player.dart';
 
 /// The panel to show stats for [name].
 class PlayerPanel extends StatelessWidget {
@@ -46,41 +45,9 @@ class PlayerPanel extends StatelessWidget {
   /// Build the widget.
   @override
   Widget build(final BuildContext context) {
-    final fouls = GameEventType.values
-        .where((final type) => type != GameEventType.goal)
-        .toList()
-      ..sort(
-        (final a, final b) =>
-            a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-      );
     final buttons = [
-      ElevatedButton(
-        onPressed: () => addEvent(
-          GameEventType.goal,
-        ),
-        child: const Icon(
-          Icons.sports_soccer,
-          semanticLabel: 'Goal',
-        ),
-      ),
-      Semantics(
-        customSemanticsActions: {
-          for (final foul in fouls)
-            CustomSemanticsAction(label: foul.name.titleCase): () =>
-                addEvent(foul),
-        },
-        child: ElevatedButton(
-          onPressed: () => context.pushWidgetBuilder(
-            (final context) => SelectFoulScreen(
-              onDone: addEvent,
-            ),
-          ),
-          child: const Icon(
-            Icons.warning,
-            semanticLabel: 'Foul',
-          ),
-        ),
-      ),
+      GoalButton(addEvent: addEvent),
+      FoulButton(addEvent: addEvent),
     ];
     return Column(
       crossAxisAlignment: switch (tableEnd) {
@@ -96,25 +63,17 @@ class PlayerPanel extends StatelessWidget {
               ListTile(
                 title: CustomText(name),
                 onTap: () => context.pushWidgetBuilder(
-                  (final builderContext) => GetText(
-                    onDone: (final value) {
-                      Navigator.pop(builderContext);
-                      onChanged(value);
-                    },
-                    labelText: 'Player name',
-                    text: name,
-                    title: 'Rename Player',
-                    validator: FormBuilderValidators.required(),
-                  ),
+                  (final builderContext) =>
+                      RenamePlayer(onChanged: onChanged, name: name),
                 ),
               ),
               ...events.reversed.map(
                 (final event) => CommonShortcuts(
-                  deleteCallback: () => doDeleteEvent(context, event),
+                  deleteCallback: () => deleteEvent(event),
                   child: ListTile(
                     title: CustomText(event.type.name.titleCase),
                     onTap: () {},
-                    onLongPress: () => doDeleteEvent(context, event),
+                    onLongPress: () => deleteEvent(event),
                   ),
                 ),
               ),
@@ -136,19 +95,4 @@ class PlayerPanel extends StatelessWidget {
       ],
     );
   }
-
-  /// Perform event deletion.
-  Future<void> doDeleteEvent(
-    final BuildContext context,
-    final GameEvent event,
-  ) =>
-      confirm(
-        context: context,
-        message: 'Really delete this event?',
-        title: 'Delete Event',
-        yesCallback: () async {
-          Navigator.pop(context);
-          deleteEvent(event);
-        },
-      );
 }
