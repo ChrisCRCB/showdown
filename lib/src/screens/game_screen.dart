@@ -138,6 +138,13 @@ class GameScreenState extends ConsumerState<GameScreen> {
         onStart: (final innerContext) =>
             addEvent(TableEnd.right, GameEventType.goal),
       ),
+      GameShortcut(
+        title: 'Switch ends',
+        shortcut: GameShortcutsShortcut.keyB,
+        controlKey: useControlKey,
+        altKey: useMetaKey,
+        onStart: (final innerContext) => switchEnds(),
+      ),
     ];
     shortcuts.add(
       GameShortcut(
