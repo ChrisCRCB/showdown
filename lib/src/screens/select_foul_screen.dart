@@ -31,31 +31,46 @@ class SelectFoulScreen extends ConsumerWidget {
     return Cancel(
       child: SimpleScaffold(
         title: 'Select Foul',
-        body: ListView.builder(
-          itemBuilder: (final context, final index) {
-            final foul = fouls[index];
-            final foulName = foul.name.titleCase;
-            return Semantics(
-              label: foulName,
-              child: FocusableActionDetector(
-                autofocus: index == 0,
-                actions: {
-                  ActivateIntent: CallbackAction(
-                    onInvoke: (final intent) => activateFoul(context, foul),
-                  ),
-                },
-                child: GestureDetector(
-                  onTap: () => activateFoul(context, foul),
-                  child: Card(
-                    child: CustomText(foulName),
-                  ),
-                ),
-              ),
-            );
-          },
-          itemCount: fouls.length,
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
+        body: OrientationBuilder(
+          builder: (final context, final orientation) => ListView.builder(
+            itemBuilder: (final context, final index) {
+              final foul = fouls[index];
+              final foulName = foul.name.titleCase;
+              switch (orientation) {
+                case Orientation.portrait:
+                  return ListTile(
+                    autofocus: index == 0,
+                    title: CustomText(foulName),
+                    onTap: () => activateFoul(context, foul),
+                  );
+                case Orientation.landscape:
+                  return Semantics(
+                    label: foulName,
+                    child: FocusableActionDetector(
+                      autofocus: index == 0,
+                      actions: {
+                        ActivateIntent: CallbackAction(
+                          onInvoke: (final intent) =>
+                              activateFoul(context, foul),
+                        ),
+                      },
+                      child: GestureDetector(
+                        onTap: () => activateFoul(context, foul),
+                        child: Card(
+                          child: CustomText(foulName),
+                        ),
+                      ),
+                    ),
+                  );
+              }
+            },
+            itemCount: fouls.length,
+            scrollDirection: switch (orientation) {
+              Orientation.portrait => Axis.vertical,
+              Orientation.landscape => Axis.horizontal,
+            },
+            shrinkWrap: true,
+          ),
         ),
       ),
     );
