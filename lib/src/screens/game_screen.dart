@@ -280,9 +280,11 @@ class GameScreenState extends ConsumerState<GameScreen> {
                         onChanged: (final name) => setState(() {
                           leftPlayerName = name;
                         }),
-                        events: events,
-                        addEvent: (final eventType) =>
-                            addEvent(TableEnd.left, eventType),
+                        events: getEvents(TableEnd.left),
+                        addEvent: (final eventType) => addEvent(
+                          TableEnd.left,
+                          eventType,
+                        ),
                         deleteEvent: deleteEvent,
                       ),
                     ),
@@ -308,8 +310,10 @@ class GameScreenState extends ConsumerState<GameScreen> {
                           rightPlayerName = name;
                         }),
                         events: getEvents(TableEnd.right),
-                        addEvent: (final eventType) =>
-                            addEvent(TableEnd.right, eventType),
+                        addEvent: (final eventType) => addEvent(
+                          TableEnd.right,
+                          eventType,
+                        ),
                         deleteEvent: deleteEvent,
                       ),
                     ),
