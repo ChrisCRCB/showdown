@@ -6,9 +6,13 @@ import '../json/game_event_type.dart';
 class GoalButton extends StatelessWidget {
   /// Create an instance.
   const GoalButton({
+    required this.playerName,
     required this.addEvent,
     super.key,
   });
+
+  /// The name of the player in question.
+  final String playerName;
 
   /// The function to call to add an event.
   final void Function(GameEventType eventType) addEvent;
@@ -20,9 +24,9 @@ class GoalButton extends StatelessWidget {
         onPressed: () => addEvent(
           GameEventType.goal,
         ),
-        child: const Icon(
+        child: Icon(
           Icons.sports_soccer,
-          semanticLabel: 'Goal',
+          semanticLabel: '$playerName Goal',
         ),
       );
 }

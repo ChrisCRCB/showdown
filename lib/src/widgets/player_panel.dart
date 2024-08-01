@@ -46,8 +46,8 @@ class PlayerPanel extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final buttons = [
-      GoalButton(addEvent: addEvent),
-      FoulButton(addEvent: addEvent),
+      GoalButton(playerName: name, addEvent: addEvent),
+      FoulButton(playerName: name, addEvent: addEvent),
     ];
     return Column(
       crossAxisAlignment: switch (tableEnd) {

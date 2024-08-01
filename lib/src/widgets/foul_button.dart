@@ -10,9 +10,13 @@ import '../screens/select_foul_screen.dart';
 class FoulButton extends StatelessWidget {
   /// Create an instance.
   const FoulButton({
+    required this.playerName,
     required this.addEvent,
     super.key,
   });
+
+  /// The name of the player in question.
+  final String playerName;
 
   /// The function to call to add an event.
   final void Function(GameEventType eventType) addEvent;
@@ -39,9 +43,9 @@ class FoulButton extends StatelessWidget {
             onDone: addEvent,
           ),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.warning,
-          semanticLabel: 'Foul',
+          semanticLabel: '$playerName Foul',
         ),
       ),
     );
