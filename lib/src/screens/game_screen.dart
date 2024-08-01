@@ -217,13 +217,17 @@ class GameScreenState extends ConsumerState<GameScreen> {
                               ),
                               FoulButton(
                                 playerName: leftPlayerName,
-                                addEvent: (final eventType) =>
-                                    addEvent(TableEnd.left, eventType),
+                                addEvent: (final eventType) => addEvent(
+                                  TableEnd.left,
+                                  eventType,
+                                ),
                               ),
                               GoalButton(
                                 playerName: leftPlayerName,
-                                addEvent: (final eventType) =>
-                                    addEvent(TableEnd.left, eventType),
+                                addEvent: (final eventType) => addEvent(
+                                  TableEnd.left,
+                                  eventType,
+                                ),
                               ),
                             ],
                           ),
@@ -262,8 +266,10 @@ class GameScreenState extends ConsumerState<GameScreen> {
                               ),
                               GoalButton(
                                 playerName: rightPlayerName,
-                                addEvent: (final eventType) =>
-                                    addEvent(TableEnd.right, eventType),
+                                addEvent: (final eventType) => addEvent(
+                                  TableEnd.right,
+                                  eventType,
+                                ),
                               ),
                             ],
                           ),
