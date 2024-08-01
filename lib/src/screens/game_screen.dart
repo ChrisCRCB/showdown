@@ -363,13 +363,11 @@ class GameScreenState extends ConsumerState<GameScreen> {
 
   /// Add a new [GameEvent] of [type] to the given [end].
   void addEvent(final TableEnd end, final GameEventType type) {
-    if (type == GameEventType.goal) {
-      switch (serveNumber) {
-        case ServeNumber.first:
-          serveNumber = ServeNumber.second;
-        case ServeNumber.second:
-          switchEnds();
-      }
+    switch (serveNumber) {
+      case ServeNumber.first:
+        serveNumber = ServeNumber.second;
+      case ServeNumber.second:
+        switchEnds();
     }
     final event = GameEvent(
       id: uuid.v4(),
