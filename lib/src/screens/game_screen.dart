@@ -415,6 +415,17 @@ class GameScreenState extends ConsumerState<GameScreen> {
           events.removeWhere(
             (final oldEvent) => oldEvent.id == event.id,
           );
+          // Roll back the server.
+          switch (serveNumber) {
+            case ServeNumber.first:
+              serveNumber = ServeNumber.second;
+              servingPlayer = switch (servingPlayer) {
+                TableEnd.left => TableEnd.right,
+                TableEnd.right => TableEnd.left
+              };
+            case ServeNumber.second:
+              serveNumber = ServeNumber.first;
+          }
           setState(() {});
         },
       );
