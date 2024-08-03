@@ -72,8 +72,7 @@ class PlayerPanel extends StatelessWidget {
                   deleteCallback: () => deleteEvent(event),
                   child: ListTile(
                     title: CustomText(event.type.name.titleCase),
-                    onTap: () {},
-                    onLongPress: () => deleteEvent(event),
+                    onTap: () => deleteEvent(event),
                   ),
                 ),
               ),
