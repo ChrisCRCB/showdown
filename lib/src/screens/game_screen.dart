@@ -7,7 +7,6 @@ import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:recase/recase.dart';
 
 import '../constants.dart';
 import '../json/game_event.dart';
@@ -17,6 +16,7 @@ import '../serve_number.dart';
 import '../table_end.dart';
 import '../widgets/custom_text.dart';
 import '../widgets/foul_button.dart';
+import '../widgets/game_event_list_tile.dart';
 import '../widgets/goal_button.dart';
 import '../widgets/player_panel.dart';
 import '../widgets/rename_player.dart';
@@ -179,18 +179,14 @@ class GameScreenState extends ConsumerState<GameScreen> {
                       child: ListView.builder(
                         itemBuilder: (final context, final index) {
                           final event = events[index];
-                          return CommonShortcuts(
-                            deleteCallback: () => deleteEvent(event),
-                            child: ListTile(
-                              title: CustomText(
-                                switch (event.tableEnd) {
-                                  TableEnd.left => leftPlayerName,
-                                  TableEnd.right => rightPlayerName,
-                                },
-                              ),
-                              subtitle: CustomText(event.type.name.titleCase),
-                              onTap: () => deleteEvent(event),
-                            ),
+                          final playerName = switch (event.tableEnd) {
+                            TableEnd.left => leftPlayerName,
+                            TableEnd.right => rightPlayerName,
+                          };
+                          return GameEventListTile(
+                            event: event,
+                            deleteEvent: deleteEvent,
+                            playerName: playerName,
                           );
                         },
                         itemCount: events.length,

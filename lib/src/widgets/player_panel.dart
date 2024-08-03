@@ -1,13 +1,13 @@
 import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:recase/recase.dart';
 
 import '../json/game_event.dart';
 import '../json/game_event_type.dart';
 import '../table_end.dart';
 import 'custom_text.dart';
 import 'foul_button.dart';
+import 'game_event_list_tile.dart';
 import 'goal_button.dart';
 import 'rename_player.dart';
 
@@ -70,9 +70,9 @@ class PlayerPanel extends StatelessWidget {
               ...events.reversed.map(
                 (final event) => CommonShortcuts(
                   deleteCallback: () => deleteEvent(event),
-                  child: ListTile(
-                    title: CustomText(event.type.name.titleCase),
-                    onTap: () => deleteEvent(event),
+                  child: GameEventListTile(
+                    event: event,
+                    deleteEvent: deleteEvent,
                   ),
                 ),
               ),
