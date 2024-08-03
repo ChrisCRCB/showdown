@@ -5,6 +5,7 @@
     "Colors",
     "CRCB",
     "recase",
-    "riverpod"
+    "riverpod",
+    "Wakelock"
   ]
 }

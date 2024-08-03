@@ -15,6 +15,7 @@ import 'rename_player.dart';
 class PlayerPanel extends StatelessWidget {
   /// Create an instance.
   const PlayerPanel({
+    required this.fouls,
     required this.name,
     required this.tableEnd,
     required this.events,
@@ -23,6 +24,9 @@ class PlayerPanel extends StatelessWidget {
     required this.deleteEvent,
     super.key,
   });
+
+  /// The fouls to use.
+  final List<GameEventType> fouls;
 
   /// The name of the player.
   final String name;
@@ -47,7 +51,11 @@ class PlayerPanel extends StatelessWidget {
   Widget build(final BuildContext context) {
     final buttons = [
       GoalButton(playerName: name, addEvent: addEvent),
-      FoulButton(playerName: name, addEvent: addEvent),
+      FoulButton(
+        fouls: fouls,
+        playerName: name,
+        addEvent: addEvent,
+      ),
     ];
     return Column(
       crossAxisAlignment: switch (tableEnd) {

@@ -7,6 +7,7 @@ import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
 import '../json/game_event.dart';
@@ -45,6 +46,12 @@ class GameScreen extends ConsumerStatefulWidget {
 
 /// State for [GameScreen].
 class GameScreenState extends ConsumerState<GameScreen> {
+  /// How often each foul has been used.
+  late final Map<GameEventType, int> foulNumbers;
+
+  /// The possible fouls.
+  late final List<GameEventType> fouls;
+
   /// The name of the left player.
   late String leftPlayerName;
 
@@ -64,6 +71,10 @@ class GameScreenState extends ConsumerState<GameScreen> {
   @override
   void initState() {
     super.initState();
+    foulNumbers = {};
+    fouls = GameEventType.values
+        .where((final fouls) => fouls != GameEventType.goal)
+        .toList();
     leftPlayerName = 'Left Player';
     rightPlayerName = 'Right Player';
     servingPlayer = TableEnd.left;
@@ -71,9 +82,26 @@ class GameScreenState extends ConsumerState<GameScreen> {
     events = [];
   }
 
+  /// Dispose of the widget.
+  @override
+  void dispose() {
+    super.dispose();
+    WakelockPlus.disable();
+  }
+
   /// Build a widget.
   @override
   Widget build(final BuildContext context) {
+    fouls.sort(
+      (final a, final b) {
+        final aNumber = foulNumbers[a] ?? 0;
+        final bNumber = foulNumbers[b] ?? 0;
+        if (aNumber == bNumber) {
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        }
+        return aNumber.compareTo(bNumber);
+      },
+    );
     final leftScore = getScore(TableEnd.left);
     final rightScore = getScore(TableEnd.right);
     final shortcuts = <GameShortcut>[
@@ -99,6 +127,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
         altKey: useMetaKey,
         onStart: (final innerContext) => innerContext.pushWidgetBuilder(
           (final innerContext) => SelectFoulScreen(
+            fouls: fouls,
             onDone: (final value) => addEvent(TableEnd.left, value),
           ),
         ),
@@ -110,6 +139,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
         altKey: useMetaKey,
         onStart: (final innerContext) => innerContext.pushWidgetBuilder(
           (final innerContext) => SelectFoulScreen(
+            fouls: fouls,
             onDone: (final value) => addEvent(TableEnd.right, value),
           ),
         ),
@@ -145,7 +175,10 @@ class GameScreenState extends ConsumerState<GameScreen> {
       shortcuts: shortcuts,
       child: SimpleScaffold(
         leading: ElevatedButton(
-          onPressed: () => newGame(context),
+          onPressed: () {
+            WakelockPlus.enable();
+            newGame(context);
+          },
           child: const Icon(
             Icons.replay,
             semanticLabel: 'Start new game',
@@ -212,6 +245,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                                 child: CustomText(leftPlayerName),
                               ),
                               FoulButton(
+                                fouls: fouls,
                                 playerName: leftPlayerName,
                                 addEvent: (final eventType) => addEvent(
                                   TableEnd.left,
@@ -254,6 +288,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                                 child: CustomText(rightPlayerName),
                               ),
                               FoulButton(
+                                fouls: fouls,
                                 playerName: rightPlayerName,
                                 addEvent: (final eventType) => addEvent(
                                   TableEnd.right,
@@ -280,6 +315,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                     Expanded(
                       flex: widget.playerPanelFlex,
                       child: PlayerPanel(
+                        fouls: fouls,
                         name: leftPlayerName,
                         key: ValueKey('${TableEnd.left} $leftPlayerName'),
                         tableEnd: TableEnd.left,
@@ -309,6 +345,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                     Expanded(
                       flex: widget.playerPanelFlex,
                       child: PlayerPanel(
+                        fouls: fouls,
                         name: rightPlayerName,
                         key: ValueKey('${TableEnd.right} $rightPlayerName'),
                         tableEnd: TableEnd.right,
@@ -371,6 +408,9 @@ class GameScreenState extends ConsumerState<GameScreen> {
       tableEnd: end,
       type: type,
     );
+    if (type != GameEventType.goal) {
+      foulNumbers[type] = (foulNumbers[type] ?? 0) + 1;
+    }
     events.add(event);
     setState(() {});
   }
