@@ -189,7 +189,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                                 },
                               ),
                               subtitle: CustomText(event.type.name.titleCase),
-                              onLongPress: () => deleteEvent(event),
+                              onTap: () => deleteEvent(event),
                             ),
                           );
                         },
