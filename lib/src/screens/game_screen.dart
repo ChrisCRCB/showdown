@@ -172,6 +172,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
       ),
     );
     return GameShortcuts(
+      autofocus: false,
       shortcuts: shortcuts,
       child: SimpleScaffold(
         leading: ElevatedButton(
