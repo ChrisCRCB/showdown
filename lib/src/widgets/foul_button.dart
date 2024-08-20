@@ -11,6 +11,7 @@ class FoulButton extends StatelessWidget {
   /// Create an instance.
   const FoulButton({
     required this.playerName,
+    required this.fouls,
     required this.addEvent,
     super.key,
   });
@@ -18,36 +19,32 @@ class FoulButton extends StatelessWidget {
   /// The name of the player in question.
   final String playerName;
 
+  /// The fouls to show.
+  final List<GameEventType> fouls;
+
   /// The function to call to add an event.
   final void Function(GameEventType eventType) addEvent;
 
   /// Build the widget.
   @override
-  Widget build(final BuildContext context) {
-    final fouls = GameEventType.values
-        .where((final type) => type != GameEventType.goal)
-        .toList()
-      ..sort(
-        (final a, final b) =>
-            a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-      );
-    return Semantics(
-      customSemanticsActions: {
-        for (final foul in fouls)
-          CustomSemanticsAction(label: foul.name.titleCase): () =>
-              addEvent(foul),
-      },
-      child: ElevatedButton(
-        onPressed: () => context.pushWidgetBuilder(
-          (final context) => SelectFoulScreen(
-            onDone: addEvent,
+  Widget build(final BuildContext context) => Semantics(
+        customSemanticsActions: {
+          for (final foul in fouls)
+            CustomSemanticsAction(label: foul.name.titleCase): () =>
+                addEvent(foul),
+        },
+        key: ValueKey(fouls.join(', ')),
+        child: ElevatedButton(
+          onPressed: () => context.pushWidgetBuilder(
+            (final context) => SelectFoulScreen(
+              fouls: fouls,
+              onDone: addEvent,
+            ),
+          ),
+          child: Icon(
+            Icons.warning,
+            semanticLabel: '$playerName Foul',
           ),
         ),
-        child: Icon(
-          Icons.warning,
-          semanticLabel: '$playerName Foul',
-        ),
-      ),
-    );
-  }
+      );
 }
