@@ -1,4 +1,4 @@
-package uk.org.crcb.showdown
+package com.example.showdown
 
 import io.flutter.embedding.android.FlutterActivity
 
