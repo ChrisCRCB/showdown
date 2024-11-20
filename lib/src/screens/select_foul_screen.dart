@@ -40,18 +40,20 @@ class SelectFoulScreen extends ConsumerWidget {
                       onTap: () => activateFoul(context, foul),
                     );
                   case Orientation.landscape:
-                    return Semantics(
-                      label: foulName,
+                    return GestureDetector(
+                      onTap: () => activateFoul(context, foul),
                       child: FocusableActionDetector(
                         autofocus: index == 0,
                         actions: {
                           ActivateIntent: CallbackAction(
-                            onInvoke: (final intent) =>
-                                activateFoul(context, foul),
+                            onInvoke: (final intent) => activateFoul(
+                              context,
+                              foul,
+                            ),
                           ),
                         },
-                        child: GestureDetector(
-                          onTap: () => activateFoul(context, foul),
+                        child: Semantics(
+                          label: foulName,
                           child: Card(
                             child: CustomText(foulName),
                           ),
