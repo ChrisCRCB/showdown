@@ -53,21 +53,26 @@ class _RenamePlayerState extends State<RenamePlayer> {
         onPopInvokedWithResult: (final didPop, final result) => submitForm(),
         child: SimpleScaffold(
           title: 'Rename Player',
-          body: Center(
-            child: Form(
-              key: formKey,
-              child: TextFormField(
-                autofocus: true,
-                controller: controller,
-                decoration: const InputDecoration(
-                  label: CustomText('Player name'),
-                  helperText: 'This will be the new name for the player',
+          body: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: TextFormField(
+                    autofocus: true,
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      label: CustomText('Player name'),
+                      helperText: 'This will be the new name for the player',
+                    ),
+                    validator: FormBuilderValidators.required(
+                      errorText: 'The player name cannot be empty',
+                    ),
+                    onFieldSubmitted: (final _) => Navigator.pop(context),
+                  ),
                 ),
-                validator: FormBuilderValidators.required(
-                  errorText: 'The player name cannot be empty',
-                ),
-                onFieldSubmitted: (final _) => Navigator.pop(context),
-              ),
+              ],
             ),
           ),
         ),
