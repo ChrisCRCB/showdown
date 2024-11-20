@@ -54,10 +54,13 @@ class ScorePanel extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        Semantics(
-          liveRegion: true,
-          child: CustomText(
-            "$servingPlayerName's $serveNumberString serve ($scores)",
+        Focus(
+          autofocus: true,
+          child: Semantics(
+            liveRegion: true,
+            child: CustomText(
+              "$servingPlayerName's $serveNumberString serve ($scores)",
+            ),
           ),
         ),
         CustomText('$leftPlayerName: $leftPlayerScore'),

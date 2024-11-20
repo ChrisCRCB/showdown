@@ -116,8 +116,10 @@ class GameScreenState extends ConsumerState<GameScreen> {
         shortcut: GameShortcutsShortcut.keyG,
         controlKey: useControlKey,
         altKey: useMetaKey,
-        onStart: (final innerContext) =>
-            addEvent(TableEnd.left, GameEventType.goal),
+        onStart: (final innerContext) => addEvent(
+          TableEnd.left,
+          GameEventType.goal,
+        ),
       ),
       GameShortcut(
         title: 'Left player foul',
@@ -171,8 +173,8 @@ class GameScreenState extends ConsumerState<GameScreen> {
       ),
     );
     return GameShortcuts(
-      autofocus: false,
       shortcuts: shortcuts,
+      canRequestFocus: false,
       child: SimpleScaffold(
         leading: ElevatedButton(
           onPressed: () {
