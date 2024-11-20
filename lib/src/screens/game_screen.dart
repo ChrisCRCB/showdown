@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/shortcuts.dart';
-import 'package:backstreets_widgets/util.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -371,8 +370,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
   }
 
   /// Start a new game.
-  Future<void> newGame(final BuildContext context) => confirm(
-        context: context,
+  Future<void> newGame(final BuildContext context) => context.confirm(
         message: 'Are you sure you want to start a new game?',
         title: 'Clear Game',
         yesCallback: () async {
@@ -443,8 +441,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
   }
 
   /// Perform event deletion.
-  Future<void> deleteEvent(final GameEvent event) => confirm(
-        context: context,
+  Future<void> deleteEvent(final GameEvent event) => context.confirm(
         message: 'Really delete this event?',
         title: 'Delete Event',
         yesCallback: () async {
