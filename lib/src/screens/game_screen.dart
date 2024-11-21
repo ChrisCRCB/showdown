@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
-import 'package:backstreets_widgets/shortcuts.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,28 +103,22 @@ class GameScreenState extends ConsumerState<GameScreen> {
     final leftScore = getScore(TableEnd.left);
     final rightScore = getScore(TableEnd.right);
     final shortcuts = <GameShortcut>[
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Start new game',
         shortcut: GameShortcutsShortcut.keyN,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: newGame,
       ),
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Left player goal',
         shortcut: GameShortcutsShortcut.keyG,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: (final innerContext) => addEvent(
           TableEnd.left,
           GameEventType.goal,
         ),
       ),
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Left player foul',
         shortcut: GameShortcutsShortcut.keyF,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: (final innerContext) => innerContext.pushWidgetBuilder(
           (final innerContext) => SelectFoulScreen(
             fouls: fouls,
@@ -133,11 +126,9 @@ class GameScreenState extends ConsumerState<GameScreen> {
           ),
         ),
       ),
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Right player foul',
         shortcut: GameShortcutsShortcut.keyJ,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: (final innerContext) => innerContext.pushWidgetBuilder(
           (final innerContext) => SelectFoulScreen(
             fouls: fouls,
@@ -145,28 +136,24 @@ class GameScreenState extends ConsumerState<GameScreen> {
           ),
         ),
       ),
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Right player goal',
         shortcut: GameShortcutsShortcut.keyH,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
-        onStart: (final innerContext) =>
-            addEvent(TableEnd.right, GameEventType.goal),
+        onStart: (final innerContext) => addEvent(
+          TableEnd.right,
+          GameEventType.goal,
+        ),
       ),
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Switch ends',
         shortcut: GameShortcutsShortcut.keyB,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: (final innerContext) => switchEnds(),
       ),
     ];
     shortcuts.add(
-      GameShortcut(
+      GameShortcut.withControlKey(
         title: 'Show help',
         shortcut: GameShortcutsShortcut.slash,
-        controlKey: useControlKey,
-        altKey: useMetaKey,
         onStart: (final innerContext) => innerContext.pushWidgetBuilder(
           (final context) => GameShortcutsHelpScreen(shortcuts: shortcuts),
         ),
