@@ -89,10 +89,6 @@ class PlayerPanel extends StatelessWidget {
         ),
         Expanded(
           child: Row(
-            mainAxisAlignment: switch (tableEnd) {
-              TableEnd.left => MainAxisAlignment.start,
-              TableEnd.right => MainAxisAlignment.end,
-            },
             children: switch (tableEnd) {
               TableEnd.left => buttons,
               TableEnd.right => buttons.reversed.toList(),

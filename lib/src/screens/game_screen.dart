@@ -15,7 +15,7 @@ import '../serve_number.dart';
 import '../table_end.dart';
 import '../widgets/custom_text.dart';
 import '../widgets/foul_button.dart';
-import '../widgets/game_event_list_tile.dart';
+import '../widgets/game_events_list_view.dart';
 import '../widgets/goal_button.dart';
 import '../widgets/player_panel.dart';
 import '../widgets/rename_player.dart';
@@ -198,100 +198,98 @@ class GameScreenState extends ConsumerState<GameScreen> {
                   children: [
                     Expanded(
                       flex: 5,
-                      child: ListView.builder(
-                        itemBuilder: (final context, final index) {
-                          final event = events[index];
-                          final playerName = switch (event.tableEnd) {
-                            TableEnd.left => leftPlayerName,
-                            TableEnd.right => rightPlayerName,
-                          };
-                          return GameEventListTile(
-                            event: event,
-                            deleteEvent: deleteEvent,
-                            playerName: playerName,
-                          );
-                        },
-                        itemCount: events.length,
-                        shrinkWrap: true,
+                      child: FocusTraversalGroup(
+                        child: GameEventsListView(
+                          events: events,
+                          leftPlayerName: leftPlayerName,
+                          rightPlayerName: rightPlayerName,
+                          deleteEvent: deleteEvent,
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 2,
                       child: Row(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextButton(
-                                onPressed: () => context.pushWidgetBuilder(
-                                  (final context) => RenamePlayer(
-                                    name: leftPlayerName,
-                                    onChanged: (final name) => setState(
-                                      () => leftPlayerName = name,
+                          FocusTraversalGroup(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextButton(
+                                  onPressed: () => context.pushWidgetBuilder(
+                                    (final context) => RenamePlayer(
+                                      name: leftPlayerName,
+                                      onChanged: (final name) => setState(
+                                        () => leftPlayerName = name,
+                                      ),
                                     ),
                                   ),
+                                  child: CustomText(leftPlayerName),
                                 ),
-                                child: CustomText(leftPlayerName),
-                              ),
-                              FoulButton(
-                                fouls: fouls,
-                                playerName: leftPlayerName,
-                                addEvent: (final eventType) => addEvent(
-                                  TableEnd.left,
-                                  eventType,
+                                FoulButton(
+                                  fouls: fouls,
+                                  playerName: leftPlayerName,
+                                  addEvent: (final eventType) => addEvent(
+                                    TableEnd.left,
+                                    eventType,
+                                  ),
                                 ),
-                              ),
-                              GoalButton(
-                                playerName: leftPlayerName,
-                                addEvent: (final eventType) => addEvent(
-                                  TableEnd.left,
-                                  eventType,
+                                GoalButton(
+                                  playerName: leftPlayerName,
+                                  addEvent: (final eventType) => addEvent(
+                                    TableEnd.left,
+                                    eventType,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           Expanded(
                             flex: 5,
-                            child: ScorePanel(
-                              leftPlayerName: leftPlayerName,
-                              leftPlayerScore: leftScore,
-                              rightPlayerName: rightPlayerName,
-                              rightPlayerScore: rightScore,
-                              serveNumber: serveNumber,
-                              tableEnd: servingPlayer,
-                              switchEnds: switchEnds,
+                            child: FocusTraversalGroup(
+                              child: ScorePanel(
+                                leftPlayerName: leftPlayerName,
+                                leftPlayerScore: leftScore,
+                                rightPlayerName: rightPlayerName,
+                                rightPlayerScore: rightScore,
+                                serveNumber: serveNumber,
+                                tableEnd: servingPlayer,
+                                switchEnds: switchEnds,
+                              ),
                             ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => context.pushWidgetBuilder(
-                                  (final context) => RenamePlayer(
-                                    name: rightPlayerName,
-                                    onChanged: (final name) => setState(
-                                      () => rightPlayerName = name,
+                          FocusTraversalGroup(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () => context.pushWidgetBuilder(
+                                    (final context) => RenamePlayer(
+                                      name: rightPlayerName,
+                                      onChanged: (final name) => setState(
+                                        () => rightPlayerName = name,
+                                      ),
                                     ),
                                   ),
+                                  child: CustomText(rightPlayerName),
                                 ),
-                                child: CustomText(rightPlayerName),
-                              ),
-                              FoulButton(
-                                fouls: fouls,
-                                playerName: rightPlayerName,
-                                addEvent: (final eventType) => addEvent(
-                                  TableEnd.right,
-                                  eventType,
+                                FoulButton(
+                                  fouls: fouls,
+                                  playerName: rightPlayerName,
+                                  addEvent: (final eventType) => addEvent(
+                                    TableEnd.right,
+                                    eventType,
+                                  ),
                                 ),
-                              ),
-                              GoalButton(
-                                playerName: rightPlayerName,
-                                addEvent: (final eventType) => addEvent(
-                                  TableEnd.right,
-                                  eventType,
+                                GoalButton(
+                                  playerName: rightPlayerName,
+                                  addEvent: (final eventType) => addEvent(
+                                    TableEnd.right,
+                                    eventType,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -303,50 +301,56 @@ class GameScreenState extends ConsumerState<GameScreen> {
                   children: [
                     Expanded(
                       flex: widget.playerPanelFlex,
-                      child: PlayerPanel(
-                        fouls: fouls,
-                        name: leftPlayerName,
-                        key: ValueKey('${TableEnd.left} $leftPlayerName'),
-                        tableEnd: TableEnd.left,
-                        onChanged: (final name) => setState(() {
-                          leftPlayerName = name;
-                        }),
-                        events: getEvents(TableEnd.left),
-                        addEvent: (final eventType) => addEvent(
-                          TableEnd.left,
-                          eventType,
+                      child: FocusTraversalGroup(
+                        child: PlayerPanel(
+                          fouls: fouls,
+                          name: leftPlayerName,
+                          key: ValueKey('${TableEnd.left} $leftPlayerName'),
+                          tableEnd: TableEnd.left,
+                          onChanged: (final name) => setState(() {
+                            leftPlayerName = name;
+                          }),
+                          events: getEvents(TableEnd.left),
+                          addEvent: (final eventType) => addEvent(
+                            TableEnd.left,
+                            eventType,
+                          ),
+                          deleteEvent: deleteEvent,
                         ),
-                        deleteEvent: deleteEvent,
                       ),
                     ),
                     Expanded(
                       flex: widget.middleFlex,
-                      child: ScorePanel(
-                        leftPlayerName: leftPlayerName,
-                        leftPlayerScore: leftScore,
-                        rightPlayerName: rightPlayerName,
-                        rightPlayerScore: rightScore,
-                        serveNumber: serveNumber,
-                        tableEnd: servingPlayer,
-                        switchEnds: switchEnds,
+                      child: FocusTraversalGroup(
+                        child: ScorePanel(
+                          leftPlayerName: leftPlayerName,
+                          leftPlayerScore: leftScore,
+                          rightPlayerName: rightPlayerName,
+                          rightPlayerScore: rightScore,
+                          serveNumber: serveNumber,
+                          tableEnd: servingPlayer,
+                          switchEnds: switchEnds,
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: widget.playerPanelFlex,
-                      child: PlayerPanel(
-                        fouls: fouls,
-                        name: rightPlayerName,
-                        key: ValueKey('${TableEnd.right} $rightPlayerName'),
-                        tableEnd: TableEnd.right,
-                        onChanged: (final name) => setState(() {
-                          rightPlayerName = name;
-                        }),
-                        events: getEvents(TableEnd.right),
-                        addEvent: (final eventType) => addEvent(
-                          TableEnd.right,
-                          eventType,
+                      child: FocusTraversalGroup(
+                        child: PlayerPanel(
+                          fouls: fouls,
+                          name: rightPlayerName,
+                          key: ValueKey('${TableEnd.right} $rightPlayerName'),
+                          tableEnd: TableEnd.right,
+                          onChanged: (final name) => setState(() {
+                            rightPlayerName = name;
+                          }),
+                          events: getEvents(TableEnd.right),
+                          addEvent: (final eventType) => addEvent(
+                            TableEnd.right,
+                            eventType,
+                          ),
+                          deleteEvent: deleteEvent,
                         ),
-                        deleteEvent: deleteEvent,
                       ),
                     ),
                   ],
