@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../serve_number.dart';
 import '../table_end.dart';
@@ -51,6 +53,10 @@ class ScorePanel extends StatelessWidget {
       TableEnd.left => '$leftPlayerScore : $rightPlayerScore',
       TableEnd.right => '$rightPlayerScore : $leftPlayerScore',
     };
+    final scoreText = "$servingPlayerName's $serveNumberString serve ($scores)";
+    if (defaultTargetPlatform == TargetPlatform.macOS) {
+      SemanticsService.announce(scoreText, TextDirection.ltr);
+    }
     return ListView(
       shrinkWrap: true,
       children: [
@@ -58,9 +64,7 @@ class ScorePanel extends StatelessWidget {
           autofocus: true,
           child: Semantics(
             liveRegion: true,
-            child: CustomText(
-              "$servingPlayerName's $serveNumberString serve ($scores)",
-            ),
+            child: CustomText(scoreText),
           ),
         ),
         CustomText('$leftPlayerName: $leftPlayerScore'),
