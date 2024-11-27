@@ -208,7 +208,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
       ),
       for (var i = 0; i < reviewKeys.length; i++)
         GameShortcut(
-          title: 'Review game event',
+          title: 'Review game event ${i + 1}',
           shortcut: reviewKeys[i],
           onStart: (final innerContext) {
             final reviewPlayer = _reviewPlayer;
@@ -228,6 +228,33 @@ class GameScreenState extends ConsumerState<GameScreen> {
               } else {
                 final event = events[index];
                 context.announce('${event.type.name.titleCase} $name');
+              }
+            }
+          },
+        ),
+      for (var i = 0; i < reviewKeys.length; i++)
+        GameShortcut(
+          title: 'Delete event ${i + 1}',
+          shortcut: reviewKeys[i],
+          shiftKey: true,
+          onStart: (final innerContext) {
+            final reviewPlayer = _reviewPlayer;
+            if (reviewPlayer == null) {
+              context.announce('You must hold an arrow key down first.');
+            } else {
+              final name = switch (reviewPlayer) {
+                TableEnd.left => leftPlayerName,
+                TableEnd.right => rightPlayerName,
+              };
+              final events = getEvents(reviewPlayer);
+              final index = events.length - (i + 1);
+              if (index < 0) {
+                innerContext.announce(
+                  'There are not that many events for $name.',
+                );
+              } else {
+                final event = events[index];
+                deleteEvent(event);
               }
             }
           },
