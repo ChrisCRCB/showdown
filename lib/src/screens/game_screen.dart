@@ -5,6 +5,7 @@ import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:recase/recase.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
@@ -226,7 +227,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                 );
               } else {
                 final event = events[index];
-                context.announce('${event.type.name} $name');
+                context.announce('${event.type.name.titleCase} $name');
               }
             }
           },
