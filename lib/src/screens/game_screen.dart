@@ -147,6 +147,32 @@ class GameScreenState extends ConsumerState<GameScreen> {
           ),
         ),
       ),
+      GameShortcut.withControlKey(
+        title: 'Copy game transcript',
+        shortcut: GameShortcutsShortcut.keyC,
+        onStart: (final innerContext) {
+          final buffer = StringBuffer()
+            ..writeln(
+              // ignore: lines_longer_than_80_chars
+              'Game between $leftPlayerName (left), and $rightPlayerName (right).',
+            );
+          for (final event in events) {
+            buffer
+              ..write(
+                switch (event.tableEnd) {
+                  TableEnd.left => leftPlayerName,
+                  TableEnd.right => rightPlayerName,
+                },
+              )
+              ..writeln(': ${event.type.name.sentenceCase}.');
+          }
+          buffer.writeln(
+            // ignore: lines_longer_than_80_chars
+            'Final score: $leftPlayerName: $leftScore, $rightPlayerName: $rightScore.',
+          );
+          buffer.toString().copyToClipboard();
+        },
+      ),
       GameShortcut(
         title: 'Focus score panel',
         shortcut: GameShortcutsShortcut.escape,
