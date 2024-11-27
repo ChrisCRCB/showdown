@@ -10,6 +10,7 @@ import 'custom_text.dart';
 class ScorePanel extends StatelessWidget {
   /// Create an instance.
   const ScorePanel({
+    required this.focusNode,
     required this.leftPlayerName,
     required this.leftPlayerScore,
     required this.rightPlayerName,
@@ -19,6 +20,9 @@ class ScorePanel extends StatelessWidget {
     required this.switchEnds,
     super.key,
   });
+
+  /// The focus node to use.
+  final FocusNode focusNode;
 
   /// The name of the left player.
   final String leftPlayerName;
@@ -62,6 +66,7 @@ class ScorePanel extends StatelessWidget {
       children: [
         Focus(
           autofocus: true,
+          focusNode: focusNode,
           child: Semantics(
             liveRegion: true,
             child: CustomText(scoreText),

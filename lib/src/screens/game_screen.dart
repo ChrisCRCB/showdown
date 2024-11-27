@@ -4,6 +4,7 @@ import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -44,6 +45,9 @@ class GameScreen extends ConsumerStatefulWidget {
 
 /// State for [GameScreen].
 class GameScreenState extends ConsumerState<GameScreen> {
+  /// The focus node for the score panel.
+  late final FocusNode _scorePanelFocusNode;
+
   /// How often each foul has been used.
   late final Map<GameEventType, int> foulNumbers;
 
@@ -69,6 +73,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
   @override
   void initState() {
     super.initState();
+    _scorePanelFocusNode = FocusNode();
     foulNumbers = {};
     fouls = GameEventType.values
         .where((final fouls) => fouls != GameEventType.goal)
@@ -85,6 +90,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
   void dispose() {
     super.dispose();
     WakelockPlus.disable();
+    _scorePanelFocusNode.dispose();
   }
 
   /// Build a widget.
@@ -103,6 +109,27 @@ class GameScreenState extends ConsumerState<GameScreen> {
     final leftScore = getScore(TableEnd.left);
     final rightScore = getScore(TableEnd.right);
     final shortcuts = <GameShortcut>[
+      GameShortcut(
+        title: 'Focus score panel',
+        shortcut: GameShortcutsShortcut.escape,
+        onStart: (final innerContext) {
+          if (_scorePanelFocusNode.hasFocus) {
+            final servingPlayerName = switch (servingPlayer) {
+              TableEnd.left => leftPlayerName,
+              TableEnd.right => rightPlayerName,
+            };
+            final serveNumberString = serveNumber.name;
+            final scores = switch (servingPlayer) {
+              TableEnd.left => '$leftScore : $rightScore',
+              TableEnd.right => '$rightScore : $leftScore',
+            };
+            final scoreText =
+                "$servingPlayerName's $serveNumberString serve ($scores)";
+            SemanticsService.announce(scoreText, TextDirection.ltr);
+          }
+          _scorePanelFocusNode.requestFocus();
+        },
+      ),
       GameShortcut.withControlKey(
         title: 'Start new game',
         shortcut: GameShortcutsShortcut.keyN,
@@ -248,6 +275,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                             flex: 5,
                             child: FocusTraversalGroup(
                               child: ScorePanel(
+                                focusNode: _scorePanelFocusNode,
                                 leftPlayerName: leftPlayerName,
                                 leftPlayerScore: leftScore,
                                 rightPlayerName: rightPlayerName,
@@ -323,6 +351,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
                       flex: widget.middleFlex,
                       child: FocusTraversalGroup(
                         child: ScorePanel(
+                          focusNode: _scorePanelFocusNode,
                           leftPlayerName: leftPlayerName,
                           leftPlayerScore: leftScore,
                           rightPlayerName: rightPlayerName,
