@@ -127,6 +127,26 @@ class GameScreenState extends ConsumerState<GameScreen> {
       GameShortcutsShortcut.backspace,
     ];
     final shortcuts = <GameShortcut>[
+      GameShortcut.withControlKey(
+        title: 'Rename left player',
+        shortcut: GameShortcutsShortcut.keyR,
+        onStart: (final innerContext) => innerContext.pushWidgetBuilder(
+          (final context) => RenamePlayer(
+            name: leftPlayerName,
+            onChanged: (final name) => setState(() => leftPlayerName = name),
+          ),
+        ),
+      ),
+      GameShortcut.withControlKey(
+        title: 'Rename right player',
+        shortcut: GameShortcutsShortcut.keyI,
+        onStart: (final innerContext) => innerContext.pushWidgetBuilder(
+          (final context) => RenamePlayer(
+            name: rightPlayerName,
+            onChanged: (final name) => setState(() => rightPlayerName = name),
+          ),
+        ),
+      ),
       GameShortcut(
         title: 'Focus score panel',
         shortcut: GameShortcutsShortcut.escape,
