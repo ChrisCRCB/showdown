@@ -68,19 +68,24 @@ class PlayerPanel extends StatelessWidget {
           child: ListView(
             shrinkWrap: true,
             children: [
-              ListTile(
-                title: CustomText(name),
-                onTap: () => context.pushWidgetBuilder(
-                  (final builderContext) =>
-                      RenamePlayer(onChanged: onChanged, name: name),
+              TextButton(
+                onPressed: () => context.pushWidgetBuilder(
+                  (final builderContext) => RenamePlayer(
+                    onChanged: onChanged,
+                    name: name,
+                  ),
                 ),
+                child: CustomText(name),
               ),
               ...events.reversed.map(
                 (final event) => CommonShortcuts(
                   deleteCallback: () => deleteEvent(event),
-                  child: GameEventListTile(
-                    event: event,
-                    deleteEvent: deleteEvent,
+                  child: Semantics(
+                    label: "$name's",
+                    child: GameEventListTile(
+                      event: event,
+                      deleteEvent: deleteEvent,
+                    ),
                   ),
                 ),
               ),
