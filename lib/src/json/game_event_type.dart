@@ -26,4 +26,7 @@ enum GameEventType {
 
   /// Illegal defence.
   illegalDefence,
+
+  /// Talking during play.
+  talking,
 }
