@@ -4,7 +4,6 @@ import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -47,6 +46,9 @@ class GameScreen extends ConsumerStatefulWidget {
 class GameScreenState extends ConsumerState<GameScreen> {
   /// The focus node for the score panel.
   late final FocusNode _scorePanelFocusNode;
+
+  /// Which arrow key is held down.
+  TableEnd? _reviewPlayer;
 
   /// How often each foul has been used.
   late final Map<GameEventType, int> foulNumbers;
@@ -108,6 +110,21 @@ class GameScreenState extends ConsumerState<GameScreen> {
     );
     final leftScore = getScore(TableEnd.left);
     final rightScore = getScore(TableEnd.right);
+    const reviewKeys = [
+      GameShortcutsShortcut.digit1,
+      GameShortcutsShortcut.digit2,
+      GameShortcutsShortcut.digit3,
+      GameShortcutsShortcut.digit4,
+      GameShortcutsShortcut.digit5,
+      GameShortcutsShortcut.digit6,
+      GameShortcutsShortcut.digit7,
+      GameShortcutsShortcut.digit8,
+      GameShortcutsShortcut.digit9,
+      GameShortcutsShortcut.digit0,
+      GameShortcutsShortcut.minus,
+      GameShortcutsShortcut.equal,
+      GameShortcutsShortcut.backspace,
+    ];
     final shortcuts = <GameShortcut>[
       GameShortcut(
         title: 'Focus score panel',
@@ -125,7 +142,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
             };
             final scoreText =
                 "$servingPlayerName's $serveNumberString serve ($scores)";
-            SemanticsService.announce(scoreText, TextDirection.ltr);
+            innerContext.announce(scoreText);
           }
           _scorePanelFocusNode.requestFocus();
         },
@@ -176,6 +193,44 @@ class GameScreenState extends ConsumerState<GameScreen> {
         shortcut: GameShortcutsShortcut.keyB,
         onStart: (final innerContext) => switchEnds(),
       ),
+      GameShortcut(
+        title: 'Review left player events',
+        shortcut: GameShortcutsShortcut.arrowLeft,
+        onStart: (final innerContext) => _reviewPlayer = TableEnd.left,
+        onStop: (final innerContext) => _reviewPlayer = null,
+      ),
+      GameShortcut(
+        title: 'Review right player events',
+        shortcut: GameShortcutsShortcut.arrowRight,
+        onStart: (final innerContext) => _reviewPlayer = TableEnd.right,
+        onStop: (final innerContext) => _reviewPlayer = null,
+      ),
+      for (var i = 0; i < reviewKeys.length; i++)
+        GameShortcut(
+          title: 'Review game event',
+          shortcut: reviewKeys[i],
+          onStart: (final innerContext) {
+            final reviewPlayer = _reviewPlayer;
+            if (reviewPlayer == null) {
+              context.announce('You must hold an arrow key down first.');
+            } else {
+              final name = switch (reviewPlayer) {
+                TableEnd.left => leftPlayerName,
+                TableEnd.right => rightPlayerName,
+              };
+              final events = getEvents(reviewPlayer);
+              final index = events.length - (i + 1);
+              if (index < 0) {
+                innerContext.announce(
+                  'There are not that many events for $name.',
+                );
+              } else {
+                final event = events[index];
+                context.announce('${event.type.name} $name');
+              }
+            }
+          },
+        ),
     ];
     shortcuts.add(
       GameShortcut.withControlKey(
