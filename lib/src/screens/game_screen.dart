@@ -106,7 +106,7 @@ class GameScreenState extends ConsumerState<GameScreen> {
         if (aNumber == bNumber) {
           return a.name.toLowerCase().compareTo(b.name.toLowerCase());
         }
-        return aNumber.compareTo(bNumber);
+        return bNumber.compareTo(aNumber);
       },
     );
     final leftScore = getScore(TableEnd.left);
