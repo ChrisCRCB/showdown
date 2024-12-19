@@ -29,4 +29,7 @@ enum GameEventType {
 
   /// Talking during play.
   talking,
+
+  /// A player dropped their bat.
+  batDropped,
 }
